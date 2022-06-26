@@ -10,8 +10,12 @@
 
 #include <fstream>
 
+#include <bitset>
+
 int main(int argc, char* argv[]) {
 	std::vector<std::string>fileNames;
+
+	std::bitset<8> flags;
 
 	size_t fileNumCap = 10;
 
@@ -30,6 +34,10 @@ int main(int argc, char* argv[]) {
 			case 'v':
 				PrintVersion();
 				break;
+			case 'T':
+			___SHORTEN_TABS:
+				flags[0] = true;
+				break;
 
 			case '-':
 			{
@@ -38,6 +46,9 @@ int main(int argc, char* argv[]) {
 				}
 				else if (strcmp("--help", *(argv + i)) == 0) {
 					PrintHelp();
+				}
+				else if (strcmp("--show-tabs", *(argv + i)) == 0) {
+					goto ___SHORTEN_TABS;
 				}
 				else {
 					std::string buff = "md: unknown option - " + std::string(*(argv + i));
@@ -79,12 +90,12 @@ int main(int argc, char* argv[]) {
 		fileBufSz = fileToOpen.tellg();
 		fileToOpen.seekg(0, fileToOpen.beg);
 
-		file_buffer = new char[fileBufSz];
+		file_buffer = new char[fileBufSz + 1];
 
 		fileToOpen.read(file_buffer, fileBufSz);
-		file_buffer[fileBufSz - 1] = 0;
+		file_buffer[fileBufSz] = 0;
 
-		pl(file_buffer);
+		printBuffer(flags, file_buffer, fileBufSz);
 
 		delete[] file_buffer;
 		fileToOpen.close();
