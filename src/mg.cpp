@@ -38,6 +38,34 @@ int main(int argc, char* argv[]) {
 			___SHORTEN_TABS:
 				flags[0] = true;
 				break;
+			case 'f':
+				i++;
+				goto ___ADD_FILE;
+				break;
+			case 'n':
+			___FORCE_NEWLINE:
+				flags[1] = true;
+				break;
+			case 'l':
+			___NEWLINE_IF_REQ:
+				flags[2] = true;
+				break;
+			case 'N':
+			___NO_NEWLINE:
+				flags[3] = true;
+				break;
+			case 'w':
+			___SHOW_WIN_ENDS:
+				flags[6] = true;
+			case 'E':
+			___SHOW_ENDS:
+				flags[4] = true;
+				break;
+
+			case 'V':
+			___SHOW_NP:
+				flags[5] = true;
+				break;
 
 			case '-':
 			{
@@ -50,9 +78,34 @@ int main(int argc, char* argv[]) {
 				else if (strcmp("--show-tabs", *(argv + i)) == 0) {
 					goto ___SHORTEN_TABS;
 				}
+				else if (strcmp("--new-line", *(argv + i)) == 0) {
+					goto ___FORCE_NEWLINE;
+				}
+				else if (strcmp("--new-line-if", *(argv + i)) == 0) {
+					goto ___NEWLINE_IF_REQ;
+				}
+				else if (strcmp("--no-new-line", *(argv + i)) == 0) {
+					goto ___NO_NEWLINE;
+				}
+				else if (strcmp("--show-ends", *(argv + i)) == 0) {
+					goto ___SHOW_ENDS;
+				}
+				else if (strcmp("--show-nonprinting", *(argv + i)) == 0) {
+					goto ___SHOW_NP;
+				}
+				else if (strcmp("--show-win-e", *(argv + i)) == 0) {
+					goto ___SHOW_WIN_ENDS;
+				}
 				else {
-					std::string buff = "md: unknown option - " + std::string(*(argv + i));
-					PrintHelp(buff.c_str());
+					std::string argStr(*(argv + i));
+					if (argStr.find("--file=") == 0) {
+						fileNames.push_back(argStr.substr(7));
+						goto ___ADJ_SZ;
+					}
+					else {
+						std::string buff = "md: unknown option - " + argStr;
+						PrintHelp(buff.c_str());
+					}
 				}
 				break;
 			}
@@ -63,11 +116,14 @@ int main(int argc, char* argv[]) {
 			break;
 		}
 		default:
-			fileNames.push_back(*(argv + i));
-
-			if (fileNames.size() >= fileNumCap) {
-				fileNumCap += 10;
-				fileNames.reserve(fileNumCap);
+			___ADD_FILE:
+			if (i < argc) {
+				fileNames.push_back(*(argv + i));
+				___ADJ_SZ:
+				if (fileNames.size() >= fileNumCap) {
+					fileNumCap += 10;
+					fileNames.reserve(fileNumCap);
+				}
 			}
 		}
 
@@ -79,7 +135,7 @@ int main(int argc, char* argv[]) {
 	size_t fileBufSz = 0;
 
 	for (size_t i = 0; i < fileNumCap; i++) {
-		fileToOpen.open(fileNames[i]);
+		fileToOpen.open(fileNames[i], std::ifstream::binary);
 
 		if (fileToOpen.bad() || !fileToOpen.is_open()) {
 			pl("Error! Unable to open:  " << fileNames[i]);
