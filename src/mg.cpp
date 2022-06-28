@@ -103,15 +103,13 @@ int main(int argc, char* argv[]) {
 						goto ___ADJ_SZ;
 					}
 					else {
-						std::string buff = "md: unknown option - " + argStr;
-						PrintHelp(buff.c_str());
+						std::cerr << "md: unknown option - " << argStr << std::endl;
 					}
 				}
 				break;
 			}
 			default:
-				std::string buff = "md: unknown option - " + std::string(*(argv + i));
-				PrintHelp(buff.c_str());
+				std::cerr << "md: unknown option - " << *(argv + i) << std::endl;
 			}
 			break;
 		}

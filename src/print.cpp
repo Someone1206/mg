@@ -3,8 +3,11 @@
 void printBuffer(std::bitset<8>& flags, char* fileBuffer, size_t fileBuffSz)
 {
 	char ch = 0;
+	size_t index = 0;
+	fileBuffSz--;
 	while (true) {
 		ch = *fileBuffer;
+		index++;
 		if (flags[5]) { // --show-tabs
 			if (ch == '\r') {
 				p("M^");
@@ -31,6 +34,13 @@ void printBuffer(std::bitset<8>& flags, char* fileBuffer, size_t fileBuffSz)
 			}
 		}
 
+		if (index == fileBuffSz) {
+			if (flags[3] && (ch == '\r' || ch == '\n')) {
+				fileBuffer++;
+				break;
+			}
+		}
+
 		if (*fileBuffer == 0)
 			break;
 		p(*fileBuffer);
@@ -44,9 +54,5 @@ void printBuffer(std::bitset<8>& flags, char* fileBuffer, size_t fileBuffSz)
 	}
 	else if (flags[2] && ch != '\n') {
 		p("\n");
-	}
-	// TODO: Fix this...
-	else if (flags[3] && ch == '\n') {
-		p("\b");
 	}
 }
